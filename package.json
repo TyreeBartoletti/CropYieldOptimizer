@@ -1,0 +1,30 @@
+{
+  "name": "confidential-crop-yield-optimizer",
+  "version": "1.0.0",
+  "description": "Agricultural Data Collaboration Platform with Fully Homomorphic Encryption",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step needed for static files'",
+    "start": "npx http-server . -p 3000",
+    "deploy": "vercel"
+  },
+  "keywords": [
+    "agriculture",
+    "fhe",
+    "blockchain",
+    "privacy",
+    "optimization",
+    "zama",
+    "smart-contracts"
+  ],
+  "author": "Agricultural Technology Solutions",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/confidential-crop-yield-optimizer.git"
+  },
+  "homepage": "https://your-domain.vercel.app",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confidential Crop Yield Optimizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2E8B57 0%, #98FB98 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #228B22;
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #e9ecef;
+            color: #228B22;
+        }
+
+        .tab-content {
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: #228B22;
+        }
+
+        .card h3 {
+            color: #228B22;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #228B22;
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 139, 34, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+        }
+
+        .status-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .status-card.success {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%);
+            border-left-color: #4caf50;
+        }
+
+        .status-card.error {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left-color: #f44336;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .metric h4 {
+            color: #228B22;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .metric p {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #228B22;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .analysis-result {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .recommendation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .recommendation span {
+            font-weight: 600;
+        }
+
+        .recommendation .value {
+            color: #228B22;
+            font-size: 1.2em;
+        }
+
+        .privacy-notice {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-left: 5px solid #9c27b0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .privacy-notice h4 {
+            color: #7b1fa2;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌾 Confidential Crop Yield Optimizer</h1>
+            <p>Agricultural Data Collaboration Platform with Fully Homomorphic Encryption</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('register')">Farm Registration</button>
+            <button class="nav-tab" onclick="switchTab('data')">Data Submission</button>
+            <button class="nav-tab" onclick="switchTab('analysis')">Collaborative Analysis</button>
+            <button class="nav-tab" onclick="switchTab('results')">Optimization Results</button>
+            <button class="nav-tab" onclick="switchTab('stats')">Platform Statistics</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Farm Registration -->
+            <div id="register" class="tab-pane active">
+                <div class="card">
+                    <h3>🏭 Farm Registration</h3>
+                    <div class="privacy-notice">
+                        <h4>🔒 Privacy Protection Commitment</h4>
+                        <p>All your agricultural data will be protected through Fully Homomorphic Encryption (FHE) technology, ensuring that your business secrets remain confidential during collaborative analysis. The platform can only compute collective optimization recommendations without accessing any farm's raw data.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Farm Wallet Address</label>
+                        <input type="text" id="farmAddress" placeholder="Connect MetaMask to auto-fill" readonly>
+                    </div>
+
+                    <button class="btn" onclick="connectWallet()">Connect MetaMask Wallet</button>
+                    <button class="btn" onclick="registerFarm()" disabled id="registerBtn">Register Farm</button>
+
+                    <div id="registerStatus" class="status-card" style="display: none;">
+                        <p>Waiting for registration confirmation...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Submission -->
+            <div id="data" class="tab-pane">
+                <div class="card">
+                    <h3>📊 Submit Agricultural Data</h3>
+
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Soil Quality Index (1-100)</label>
+                            <input type="number" id="soilQuality" min="1" max="100" placeholder="Enter soil quality index">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Water Usage (cubic meters/acre)</label>
+                            <input type="number" id="waterUsage" min="1" placeholder="Enter water usage">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fertilizer Usage (kg/acre)</label>
+                            <input type="number" id="fertilizerUsage" min="0" placeholder="Enter fertilizer usage">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Actual Yield (kg/acre)</label>
+                            <input type="number" id="yieldAmount" min="1" placeholder="Enter actual yield">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Crop Type</label>
+                        <select id="cropType">
+                            <option value="0">Select crop type</option>
+                            <option value="1">Rice</option>
+                            <option value="2">Wheat</option>
+                            <option value="3">Corn</option>
+                            <option value="4">Soybean</option>
+                            <option value="5">Vegetables</option>
+                            <option value="6">Fruit Trees</option>
+                            <option value="7">Tea</option>
+                            <option value="8">Cotton</option>
+                            <option value="9">Flowers</option>
+                            <option value="10">Others</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" onclick="submitFarmData()">Submit Encrypted Data</button>
+
+                    <div id="dataStatus" class="status-card" style="display: none;">
+                        <p>Submitting data, please wait for blockchain confirmation...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collaborative Analysis -->
+            <div id="analysis" class="tab-pane">
+                <div class="card">
+                    <h3>🤝 Multi-Farm Collaborative Analysis</h3>
+
+                    <div class="grid">
+                        <div class="metric">
+                            <h4 id="participatingFarms">-</h4>
+                            <p>Participating Farms</p>
+                        </div>
+                        <div class="metric">
+                            <h4 id="currentAnalysisId">-</h4>
+                            <p>Current Analysis Round</p>
+                        </div>
+                    </div>
+
+                    <div class="privacy-notice">
+                        <h4>🔬 Analysis Description</h4>
+                        <p>The system will perform homomorphic encryption calculations on data from all participating farms to generate optimal planting recommendations. Throughout the process, no farm's raw data will be exposed, ensuring business confidentiality. At least 3 farms are required to start the analysis.</p>
+                    </div>
+
+                    <button class="btn" onclick="startAnalysis()">Start Collaborative Analysis</button>
+                    <button class="btn btn-secondary" onclick="refreshStats()">Refresh Statistics</button>
+
+                    <div id="analysisStatus" class="loading">
+                        <div class="spinner"></div>
+                        <p>Performing encrypted computation analysis, please wait...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Results -->
+            <div id="results" class="tab-pane">
+                <div class="card">
+                    <h3>💡 Personalized Optimization Recommendations</h3>
+
+                    <div class="form-group">
+                        <label>Analysis ID</label>
+                        <input type="number" id="analysisIdInput" placeholder="Enter analysis ID" min="1">
+                    </div>
+
+                    <button class="btn" onclick="getRecommendations()">Get My Recommendations</button>
+
+                    <div id="recommendationsResult" style="display: none;">
+                        <div class="analysis-result">
+                            <h4>🎯 Your Exclusive Optimization Recommendations</h4>
+
+                            <div class="recommendation">
+                                <span>Recommended Soil Treatment:</span>
+                                <span class="value" id="soilRecommendation">Computing...</span>
+                            </div>
+
+                            <div class="recommendation">
+                                <span>Recommended Water Usage:</span>
+                                <span class="value" id="waterRecommendation">Computing...</span>
+                            </div>
+
+                            <div class="recommendation">
+                                <span>Recommended Fertilizer Usage:</span>
+                                <span class="value" id="fertilizerRecommendation">Computing...</span>
+                            </div>
+
+                            <div class="recommendation">
+                                <span>Predicted Yield Increase:</span>
+                                <span class="value" id="yieldIncrease">Computing...</span>
+                            </div>
+                        </div>
+
+                        <div class="privacy-notice">
+                            <h4>🔒 Data Security Notice</h4>
+                            <p>The above recommendations are personalized results based on encrypted computations, and only you can see the complete recommendation details. Other farms cannot access your specific data or recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Statistics -->
+            <div id="stats" class="tab-pane">
+                <div class="card">
+                    <h3>📈 Platform Statistics</h3>
+
+                    <div class="grid">
+                        <div class="metric">
+                            <h4 id="totalFarms">-</h4>
+                            <p>Total Registered Farms</p>
+                        </div>
+                        <div class="metric">
+                            <h4 id="totalAnalyses">-</h4>
+                            <p>Completed Analyses</p>
+                        </div>
+                        <div class="metric">
+                            <h4 id="farmsWithData">-</h4>
+                            <p>Farms with Submitted Data</p>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="loadPlatformStats()">Refresh Statistics</button>
+                </div>
+
+                <div class="card">
+                    <h3>ℹ️ About This Platform</h3>
+                    <p><strong>Confidential Crop Yield Optimizer</strong> is a decentralized agricultural data analysis system built on Zama's Fully Homomorphic Encryption technology.</p>
+                    <br>
+                    <p><strong>Core Features:</strong></p>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>🔒 <strong>Privacy Protection</strong>: All agricultural data is homomorphically encrypted, ensuring business confidentiality</li>
+                        <li>🤝 <strong>Collaborative Analysis</strong>: Multiple farms can share encrypted data for joint computations</li>
+                        <li>📊 <strong>Smart Recommendations</strong>: Generate personalized planting optimization plans based on collective data</li>
+                        <li>🌐 <strong>Decentralized</strong>: Runs on blockchain without requiring trust in third parties</li>
+                        <li>🚀 <strong>Efficient Computing</strong>: Utilize FHE technology for complex computations in encrypted state</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ethers.js CDN - Load before main script -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <script>
+        let provider;
+        let signer;
+        let contract;
+        let userAccount;
+
+        const CONTRACT_ADDRESS = "0xa0CAc4CAfC32d90b8ca6BB4bA7eC1b4d0F5cAaf4";
+        const CONTRACT_ABI = [
+            "function registerFarm() external",
+            "function submitFarmData(uint32 _soilQuality, uint32 _waterUsage, uint32 _fertilizerUsage, uint32 _yieldAmount, uint8 _cropType) external",
+            "function startCollaborativeAnalysis() external returns (uint256)",
+            "function getPersonalizedRecommendations(uint256 _analysisId) external view returns (bytes32 soilTreatment, bytes32 waterAmount, bytes32 fertilizerAmount, bytes32 yieldIncrease)",
+            "function getParticipatingFarmsCount() public view returns (uint256)",
+            "function getPlatformStats() external view returns (uint256 totalRegisteredFarms, uint256 totalAnalyses, uint256 farmsWithData)",
+            "function isFarmRegistered(address _farm) external view returns (bool)",
+            "function getFarmDataStatus(address _farm) external view returns (bool submitted, uint256 timestamp)",
+            "function currentAnalysisId() public view returns (uint256)",
+            "event FarmRegistered(address indexed farm, uint256 timestamp)",
+            "event DataSubmitted(address indexed farm, uint256 timestamp)",
+            "event AnalysisStarted(uint256 indexed analysisId, uint256 participatingFarms)",
+            "event RecommendationGenerated(uint256 indexed analysisId)"
+        ];
+
+        // Switch tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Connect MetaMask wallet
+        async function connectWallet() {
+            if (typeof ethers === 'undefined') {
+                alert('Ethers.js library failed to load. Please refresh the page.');
+                return;
+            }
+
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    userAccount = await signer.getAddress();
+
+                    document.getElementById('farmAddress').value = userAccount;
+                    document.getElementById('registerBtn').disabled = false;
+
+                    // Initialize contract
+                    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+                    showStatus('registerStatus', 'Wallet connected successfully!', 'success');
+
+                    // Check if farm is already registered
+                    const isRegistered = await contract.isFarmRegistered(userAccount);
+                    if (isRegistered) {
+                        showStatus('registerStatus', 'Farm is already registered!', 'success');
+                    }
+
+                } catch (error) {
+                    showStatus('registerStatus', 'Wallet connection failed: ' + error.message, 'error');
+                }
+            } else {
+                alert('Please install MetaMask wallet');
+            }
+        }
+
+        // Register farm
+        async function registerFarm() {
+            if (!contract || !userAccount) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            try {
+                showStatus('registerStatus', 'Registering farm, please confirm transaction...', '');
+
+                const tx = await contract.registerFarm();
+                await tx.wait();
+
+                showStatus('registerStatus', 'Farm registration successful! Transaction hash: ' + tx.hash, 'success');
+
+            } catch (error) {
+                showStatus('registerStatus', 'Registration failed: ' + error.message, 'error');
+            }
+        }
+
+        // Submit farm data
+        async function submitFarmData() {
+            if (!contract || !userAccount) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            const soilQuality = document.getElementById('soilQuality').value;
+            const waterUsage = document.getElementById('waterUsage').value;
+            const fertilizerUsage = document.getElementById('fertilizerUsage').value;
+            const yieldAmount = document.getElementById('yieldAmount').value;
+            const cropType = document.getElementById('cropType').value;
+
+            if (!soilQuality || !waterUsage || !fertilizerUsage || !yieldAmount || cropType === '0') {
+                alert('Please fill in all agricultural data');
+                return;
+            }
+
+            try {
+                showStatus('dataStatus', 'Submitting encrypted data, please confirm transaction...', '');
+
+                const tx = await contract.submitFarmData(
+                    parseInt(soilQuality),
+                    parseInt(waterUsage),
+                    parseInt(fertilizerUsage),
+                    parseInt(yieldAmount),
+                    parseInt(cropType)
+                );
+
+                await tx.wait();
+
+                showStatus('dataStatus', 'Data submission successful! Transaction hash: ' + tx.hash, 'success');
+
+                // Clear form
+                document.getElementById('soilQuality').value = '';
+                document.getElementById('waterUsage').value = '';
+                document.getElementById('fertilizerUsage').value = '';
+                document.getElementById('yieldAmount').value = '';
+                document.getElementById('cropType').value = '0';
+
+            } catch (error) {
+                showStatus('dataStatus', 'Data submission failed: ' + error.message, 'error');
+            }
+        }
+
+        // Start collaborative analysis
+        async function startAnalysis() {
+            if (!contract || !userAccount) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            try {
+                document.getElementById('analysisStatus').classList.add('show');
+
+                const tx = await contract.startCollaborativeAnalysis();
+                const receipt = await tx.wait();
+
+                document.getElementById('analysisStatus').classList.remove('show');
+
+                // Get analysis ID from event
+                const event = receipt.events.find(e => e.event === 'AnalysisStarted');
+                if (event) {
+                    alert('Analysis started successfully! Analysis ID: ' + event.args.analysisId.toString());
+                } else {
+                    alert('Analysis started successfully! Transaction hash: ' + tx.hash);
+                }
+
+            } catch (error) {
+                document.getElementById('analysisStatus').classList.remove('show');
+                alert('Analysis start failed: ' + error.message);
+            }
+        }
+
+        // Get personalized recommendations
+        async function getRecommendations() {
+            if (!contract || !userAccount) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            const analysisId = document.getElementById('analysisIdInput').value;
+            if (!analysisId) {
+                alert('Please enter analysis ID');
+                return;
+            }
+
+            try {
+                const result = await contract.getPersonalizedRecommendations(analysisId);
+
+                document.getElementById('recommendationsResult').style.display = 'block';
+
+                // Display encrypted results (in real application, these would need decryption)
+                document.getElementById('soilRecommendation').textContent = 'Obtained (requires decryption)';
+                document.getElementById('waterRecommendation').textContent = 'Obtained (requires decryption)';
+                document.getElementById('fertilizerRecommendation').textContent = 'Obtained (requires decryption)';
+                document.getElementById('yieldIncrease').textContent = 'Obtained (requires decryption)';
+
+            } catch (error) {
+                alert('Failed to get recommendations: ' + error.message);
+            }
+        }
+
+        // Refresh statistics
+        async function refreshStats() {
+            if (!contract) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            try {
+                const count = await contract.getParticipatingFarmsCount();
+                const analysisId = await contract.currentAnalysisId();
+
+                document.getElementById('participatingFarms').textContent = count.toString();
+                document.getElementById('currentAnalysisId').textContent = (analysisId.toNumber() - 1).toString();
+
+            } catch (error) {
+                console.error('Failed to refresh statistics:', error);
+            }
+        }
+
+        // Load platform statistics
+        async function loadPlatformStats() {
+            if (!contract) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            try {
+                const stats = await contract.getPlatformStats();
+
+                document.getElementById('totalFarms').textContent = stats.totalRegisteredFarms.toString();
+                document.getElementById('totalAnalyses').textContent = stats.totalAnalyses.toString();
+                document.getElementById('farmsWithData').textContent = stats.farmsWithData.toString();
+
+            } catch (error) {
+                console.error('Failed to load statistics:', error);
+            }
+        }
+
+        // Show status information
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = '<p>' + message + '</p>';
+            element.className = 'status-card ' + type;
+        }
+
+        // Initialize after page load
+        window.addEventListener('load', function() {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask is installed');
+            } else {
+                alert('Please install MetaMask wallet');
+            }
+        });
+
+        // Handle account changes
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', function (accounts) {
+                if (accounts.length === 0) {
+                    console.log('Please connect to MetaMask.');
+                } else {
+                    userAccount = accounts[0];
+                    document.getElementById('farmAddress').value = userAccount;
+                }
+            });
+
+            window.ethereum.on('chainChanged', function (chainId) {
+                window.location.reload();
+            });
+        }
+    </script>
+</body>
+</html>
